@@ -1,9 +1,9 @@
 The new Github repository [OpenGovernmentVienna](https://github.com/ViennaR/OpenGovernmentVienna) has already been created including a very nice addition by Christian.
 
-The script follows the following steps:
+The script executes the following steps:
 
 1. Download Vienna map including district boundaries from http://data.wien.gv.at.
-2. Download Population and district size from https://www.wien.gv.at/statistik, calculate population density.
+2. Download population and district size from https://www.wien.gv.at/statistik, calculate population density.
 3. Plot Vienna map coloured by population density.
 
 
@@ -13,7 +13,6 @@ library(rgeos)
 library(XML)
 library(RCurl)
 
-#setwd("/Users/mario/CloudStation/Programming/git/OpenGovernmentVienna")
 download.vienna.bydistrict <- function(tablename, skip.row = 3) {
 	baseurl <- "https://www.wien.gv.at/statistik"
 	popurl <- sprintf("%s/%s.html", baseurl, tablename)
@@ -74,7 +73,7 @@ colsort <- colfunc(23)[order(anstieg_pop)]
 layout(matrix(c(1,2), byrow = TRUE),height=c(1.3, 0.7)) 
 par(mar=c(0,0,0,0)) 
 plot(wmap,col=colsort[wmap$BEZNR]) 
-text(as.character(wmap$BEZ_RZ), x = centroids@coords[,1], y = centroids@coords[,2],cex=0.5) 
+text(as.character(wmap$BEZ_RZ), x = centroids@coords[,1], y = centroids@coords[,2],cex=0.8) 
 par(mar=c(3,4,4,2),mgp=c(2,0.7,0)) 
 barplot(wd$inh,main="Population Density Vienna 2014",yaxt="n",col=colsort,xlab="District",beside=T, ylab=expression(paste("1.000 Inhabitants km"^-2)),names.arg=as.roman(wd$district),las=2) 
 axis(2,labels=c("0","5","10","15","20"),at=c(0,5000,10000,15000,20000),las=1) 
@@ -82,7 +81,7 @@ abline(h=c(5000,10000,15000,20000),lty=2)
 legend("topright",pch=c(15,15),col=c("darkred","lightblue"),c("high","low"),bg="white") 
 ```
 
-![plot of chunk popdensity](figure/popdensity-1.png) 
+![plot of chunk popdensity](figure/popdensity-1.svg) 
 
 ```r
 dev.off()
