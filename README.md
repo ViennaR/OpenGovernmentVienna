@@ -8,5 +8,5 @@ Repository to including R-code to analyze Open Government Data related to Vienna
 Files have been generated using 
 ```r 
 library(knitr)
-knit(<filename>.md)
+knit(<filename>.Rmd)
 ```
