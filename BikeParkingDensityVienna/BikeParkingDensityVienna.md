@@ -24,22 +24,16 @@ download.vienna.shape <- function(shapename, outdir = "data") {
 	destfile = file.path(outdir, sprintf("%s.zip", shapename))
 	download.file(url, destfile = destfile)
 	unzip(destfile, exdir = file.path(outdir, shapename))
-	file.remove(destfile)
+	invisible(file.remove(destfile))
 }
 ```
 
+# Retrieve Data
+
 
 ```r
-# Retrieve Data
 ## Read District Boundaries
 download.vienna.shape("BEZIRKSGRENZEOGD")
-```
-
-```
-## [1] TRUE
-```
-
-```r
 wmap <- readOGR("data/BEZIRKSGRENZEOGD", layer="BEZIRKSGRENZEOGDPolygon") 
 ```
 
@@ -53,13 +47,6 @@ wmap <- readOGR("data/BEZIRKSGRENZEOGD", layer="BEZIRKSGRENZEOGDPolygon")
 ```r
 ## Read Streets
 download.vienna.shape("STRASSENGRAPHOGD")
-```
-
-```
-## [1] TRUE
-```
-
-```r
 smap <- readOGR("data/STRASSENGRAPHOGD", layer="STRASSENGRAPHOGD") 
 ```
 
@@ -73,13 +60,6 @@ smap <- readOGR("data/STRASSENGRAPHOGD", layer="STRASSENGRAPHOGD")
 ```r
 ## Read bike parking lots
 download.vienna.shape("FAHRRADABSTELLANLAGEOGD")
-```
-
-```
-## [1] TRUE
-```
-
-```r
 bmap <- readOGR("data/FAHRRADABSTELLANLAGEOGD", layer="FAHRRADABSTELLANLAGEOGDPoint") 
 ```
 
@@ -96,10 +76,10 @@ distsize <- download.vienna.bydistrict("lebensraum/tabellen/nutzungsklassen-bez"
 distsizekm2 <- distsize[, 1] / 100
 ```
 
-
-```r
 # Calculate stuff
 
+
+```r
 ## Number of bike parking lots per district
 bikelotsperdistrict <- table(bmap$BEZIRK)
 lotdensity <- bikelotsperdistrict / distsizekm2
@@ -110,13 +90,12 @@ colfunc <- colorRampPalette(c("lightblue", "darkgreen"))
 colfunc100 <- colfunc(100) 
 bezirksfarben <- colfunc100[normdichte]
 
-# Transformationen  111.1 
-# km in Grad (einfache Umrechnung) 
+# Transformations  111.1 
+# km to degree (einfache Umrechnung) 
 hundm <- (1/111.1)/10 
-# 100 m für Radius der Punkte  
+# 100 m for Radius of Punkte  
 centroids <- gCentroid(wmap, byid=TRUE) # Mittelpunkt/Bezirk
 ```
-
 
 # Plots  
 
@@ -126,16 +105,17 @@ centroids <- gCentroid(wmap, byid=TRUE) # Mittelpunkt/Bezirk
 ```r
 layout(1:2, heights=c(5,1)) 
 par(mar=c(0.5,0.5,1,0.5), oma=rep(3, 4), las=1) 
-plot(wmap, main="Bike Parking Lots in Vienna (100 m Umkreis)", col=bezirksfarben[wmap$BEZNR]) 
+plot(wmap, main="Bike Parking Lots in Vienna", col=bezirksfarben[wmap$BEZNR]) 
 
 # add bike parking lots
-plot(bmap, add = TRUE, col = "yellow") 
 plot(smap, add=TRUE, col = "grey")
+draw.circle(coordinates(bmap)[,1], coordinates(bmap)[,2],hundm,border=rgb(255,255,0,maxColorValue=255),col=rgb(255,255,0,maxColorValue=255))
 text(as.character(wmap$BEZ_RZ), x = centroids@coords[,1], y = centroids@coords[,2], col="orangered",cex=0.8,font=2)
 
-# Legende  par(mar=c(1,0.5,3,0.5)) 
+# Legend
+par(mar=c(1,0.5,3,0.5)) 
 colseq <- seq(range(lotdensity)[1],range(lotdensity)[2],20) 
-image(x=colseq,y=1,z=matrix(seq_along(colseq)), col=colfunc(10), main=expression(paste("Radparkplätzedichte (bezirksweise) km"^-2)),axes=F) 
+image(x=colseq,y=1,z=matrix(seq_along(colseq)), col=colfunc(10), main=expression(paste("Bike parking lot density per district km"^-2)),axes=F) 
 axis(1)  
 ```
 
@@ -155,11 +135,18 @@ wmap2@data$id <- rownames(wmap2@data)
 # transform to data.frame  
 test1 <- fortify(wmap2, region="id")   
 # This may take a while...
-ggplot(data=test1) + aes(x=long,y=lat) +  geom_polygon(aes(group=group),col="black",fill=NA)+ geom_point(data=RK,aes(x=long,y=lat))+ geom_line(data=ws2,aes(group=group))+ xlab("Längengrad")+ylab("Breitengrad")+ stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100)+  ggtitle("Radparkplätze in Wien Stand 2015")+ scale_fill_continuous(name = "Kerndichteschätzung")+theme_bw() #dev.print(device=png,"wien_Radparkplatz2.png",units="in",width=20,height=15,res=500)
+ggplot(data=test1) + 
+  aes(x=long,y=lat) + 
+  geom_polygon(aes(group=group),col="black",fill=NA) + 
+  geom_point(data=RK,aes(x=long,y=lat)) + 
+  geom_line(data=ws2,aes(group=group))+ xlab("longitude")+ylab("latitude") + 
+  stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100) +  
+  ggtitle("Bike Parking Lots in Vienna 2015")+ scale_fill_continuous(name = "Kernel Density") + 
+  theme_bw() 
 ```
 
 ![plot of chunk bikedensity-plot2](figure/bikedensity-plot2-1.svg) 
 
-Comments / Pull Request welcome!
+Comments/Pull Requests welcome!
 
 Authors: Christian Brandstaetter with minor modifications by Mario Annau
