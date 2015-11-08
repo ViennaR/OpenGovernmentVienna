@@ -15,25 +15,6 @@ library(ggplot2)
 library(plotrix) 
 library(maptools)
 
-#library(ggmap)
-#require(XML) 
-#require(RCurl) 
-#require(RColorBrewer) 
-
-download.vienna.bydistrict <- function(tablename, skip.row = 3) {
-	baseurl <- "https://www.wien.gv.at/statistik"
-	popurl <- sprintf("%s/%s.html", baseurl, tablename)
-
-	poptable <- readHTMLTable(getURL(popurl))[[1]]
-	poptable <- poptable[-c(1:skip.row), ]
-	poptable <- poptable[, -1]
-	row.names(poptable) <- NULL
-	poptable <- sapply(poptable, function(x) gsub(".", "", x, fixed = TRUE))
-	poptable <- gsub(",", ".", poptable, fixed = TRUE)
-	poptable <- matrix(as.numeric(poptable), nrow = nrow(poptable))
-	poptable
-}
-
 download.vienna.shape <- function(shapename, outdir = "data") {
 	baseurl <- "http://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:"
 	urlparam <- "&srsName=EPSG:4326&outputFormat=shape-zip"	
@@ -95,10 +76,6 @@ bmap <- readOGR("data/FAHRRADABSTELLANLAGEOGD", layer="FAHRRADABSTELLANLAGEOGDPo
 ```
 
 ```r
-## Download Population per district
-distpop <- download.vienna.bydistrict("bevoelkerung/tabellen/bevoelkerung-alter-geschl-bez")
-distpopsum <- rowSums(as.matrix(distpop))
-
 ## Download Size of Each district
 distsize <- download.vienna.bydistrict("lebensraum/tabellen/nutzungsklassen-bez", skip.row = 2)
 distsizekm2 <- distsize[, 1] / 100
@@ -166,11 +143,11 @@ wmap2@data$id <- rownames(wmap2@data)
 test1 <- fortify(wmap2, region="id")   
 
 ggplot(data=test1) + aes(x=long,y=lat) +  
+	stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100) +  
 	geom_polygon(aes(group=group),col="black",fill=NA) + 
 	geom_point(data=RK,aes(x=long,y=lat)) + 
 	#geom_line(data=ws2,aes(group=group)) + 
 	xlab("longitute")+ ylab("latitude") + 
-	stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100) +  
 	ggtitle("Bike Parking Lots in Vienna 2015") + 
 	scale_fill_continuous(name = "Kernel Density Estimation") + 
 	theme_bw() 
