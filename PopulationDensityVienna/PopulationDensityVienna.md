@@ -83,13 +83,4 @@ legend("topright",pch=c(15,15),col=c("darkred","lightblue"),c("high","low"),bg="
 
 ![plot of chunk popdensity](figure/popdensity-1.svg) 
 
-```r
-dev.off()
-```
-
-```
-## null device 
-##           1
-```
-
 Authors: Christian Brandstaetter with small additions by Mario Annau

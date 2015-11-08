@@ -63,7 +63,6 @@ barplot(wd$inh,main="Population Density Vienna 2014",yaxt="n",col=colsort,xlab="
 axis(2,labels=c("0","5","10","15","20"),at=c(0,5000,10000,15000,20000),las=1) 
 abline(h=c(5000,10000,15000,20000),lty=2) 
 legend("topright",pch=c(15,15),col=c("darkred","lightblue"),c("high","low"),bg="white") 
-dev.off()
 ```
 
 Authors: Christian Brandstaetter with small additions by Mario Annau
