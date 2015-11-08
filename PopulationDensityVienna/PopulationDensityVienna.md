@@ -6,6 +6,7 @@ The script executes the following steps:
 2. Download population and district size from https://www.wien.gv.at/statistik, calculate population density.
 3. Plot Vienna map coloured by population density.
 
+<!--more-->
 
 ```r
 library(rgdal) 
