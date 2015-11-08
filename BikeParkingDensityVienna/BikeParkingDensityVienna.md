@@ -52,10 +52,25 @@ wmap <- readOGR("data/BEZIRKSGRENZEOGD", layer="BEZIRKSGRENZEOGDPolygon")
 
 ```r
 ## Read Streets
-###download.vienna.shape("STRASSENKNOTENOGD")
-###smap <- readOGR("data/STRASSENKNOTENOGD", layer="STRASSENKNOTENOGD", p4s = "+init=epsg:4326") 
-###ERROR: Incompatible geometry: 4
+download.vienna.shape("STRASSENGRAPHOGD")
+```
 
+```
+## [1] TRUE
+```
+
+```r
+smap <- readOGR("data/STRASSENGRAPHOGD", layer="STRASSENGRAPHOGD") 
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "data/STRASSENGRAPHOGD", layer: "STRASSENGRAPHOGD"
+## with 28293 features
+## It has 18 fields
+```
+
+```r
 ## Read bike parking lots
 download.vienna.shape("FAHRRADABSTELLANLAGEOGD")
 ```
@@ -113,9 +128,9 @@ layout(1:2, heights=c(5,1))
 par(mar=c(0.5,0.5,1,0.5), oma=rep(3, 4), las=1) 
 plot(wmap, main="Bike Parking Lots in Vienna (100 m Umkreis)", col=bezirksfarben[wmap$BEZNR]) 
 
-###plot(smap, add=TRUE) -> doesn't work 
 # add bike parking lots
 plot(bmap, add = TRUE, col = "yellow") 
+plot(smap, add=TRUE, col = "grey")
 text(as.character(wmap$BEZ_RZ), x = centroids@coords[,1], y = centroids@coords[,2], col="orangered",cex=0.8,font=2)
 
 # Legende  par(mar=c(1,0.5,3,0.5)) 
@@ -130,29 +145,21 @@ axis(1)
 
 
 ```r
-#  Transformation of bike parking lots shape to data.frame for ggplot2
+# Transformation of bike parking lots shape to data.frame for ggplot2
 RK <- data.frame(coordinates(bmap)) 
 colnames(RK) <- c("long","lat") 
-# Straßenfile  
-#ws2 <- fortify(smap,region="OBJECTID")  
-# Kopieren des Wien-shapefiles  
+ws2 <- fortify(smap,region="OBJECTID")  
 wmap2 <- wmap 
-# Zuweisen einer ID  
+# assign ID
 wmap2@data$id <- rownames(wmap2@data) 
-# Umwandeln in dataframe  
+# transform to data.frame  
 test1 <- fortify(wmap2, region="id")   
-
-ggplot(data=test1) + aes(x=long,y=lat) +  
-	stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100) +  
-	geom_polygon(aes(group=group),col="black",fill=NA) + 
-	geom_point(data=RK,aes(x=long,y=lat)) + 
-	#geom_line(data=ws2,aes(group=group)) + 
-	xlab("longitute")+ ylab("latitude") + 
-	ggtitle("Bike Parking Lots in Vienna 2015") + 
-	scale_fill_continuous(name = "Kernel Density Estimation") + 
-	theme_bw() 
+# This may take a while...
+ggplot(data=test1) + aes(x=long,y=lat) +  geom_polygon(aes(group=group),col="black",fill=NA)+ geom_point(data=RK,aes(x=long,y=lat))+ geom_line(data=ws2,aes(group=group))+ xlab("Längengrad")+ylab("Breitengrad")+ stat_density2d(data=RK,aes(fill = ..level..),size=1,bins=200,alpha=0.1, geom="polygon",n=100)+  ggtitle("Radparkplätze in Wien Stand 2015")+ scale_fill_continuous(name = "Kerndichteschätzung")+theme_bw() #dev.print(device=png,"wien_Radparkplatz2.png",units="in",width=20,height=15,res=500)
 ```
 
 ![plot of chunk bikedensity-plot2](figure/bikedensity-plot2-1.svg) 
+
+Comments / Pull Request welcome!
 
 Authors: Christian Brandstaetter with minor modifications by Mario Annau
