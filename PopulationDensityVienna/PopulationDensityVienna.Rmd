@@ -8,7 +8,7 @@ The script executes the following steps:
 
 <!--more-->
 
-```{r warning=FALSE, error=FALSE, message=FALSE, dev='svg', popdensity}
+```{r warning=FALSE, error=FALSE, message=FALSE, dev='png', dpi=600, popdensity}
 library(rgdal) 
 library(rgeos) 
 library(XML)

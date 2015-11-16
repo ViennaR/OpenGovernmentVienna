@@ -15,6 +15,20 @@ library(ggplot2)
 library(plotrix) 
 library(maptools)
 
+download.vienna.bydistrict <- function(tablename, skip.row = 3) {
+	baseurl <- "https://www.wien.gv.at/statistik"
+	popurl <- sprintf("%s/%s.html", baseurl, tablename)
+
+	poptable <- readHTMLTable(getURL(popurl))[[1]]
+	poptable <- poptable[-c(1:skip.row), ]
+	poptable <- poptable[, -1]
+	row.names(poptable) <- NULL
+	poptable <- sapply(poptable, function(x) gsub(".", "", x, fixed = TRUE))
+	poptable <- gsub(",", ".", poptable, fixed = TRUE)
+	poptable <- matrix(as.numeric(poptable), nrow = nrow(poptable))
+	poptable
+}
+
 download.vienna.shape <- function(shapename, outdir = "data") {
 	baseurl <- "http://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:"
 	urlparam <- "&srsName=EPSG:4326&outputFormat=shape-zip"	
@@ -66,7 +80,7 @@ bmap <- readOGR("data/FAHRRADABSTELLANLAGEOGD", layer="FAHRRADABSTELLANLAGEOGDPo
 ```
 ## OGR data source with driver: ESRI Shapefile 
 ## Source: "data/FAHRRADABSTELLANLAGEOGD", layer: "FAHRRADABSTELLANLAGEOGDPoint"
-## with 4061 features
+## with 4078 features
 ## It has 5 fields
 ```
 
@@ -99,7 +113,7 @@ centroids <- gCentroid(wmap, byid=TRUE) # Mittelpunkt/Bezirk
 
 # Plots  
 
-## Plot 1 - Vienna Map with Bike Parking Lots (Discrete Density)
+## Plot 1 - Vienna Map with Bike Parking Lots (Discrete Density, 100m Radius)
 
 
 ```r
@@ -119,7 +133,7 @@ image(x=colseq,y=1,z=matrix(seq_along(colseq)), col=colfunc(10), main=expression
 axis(1)  
 ```
 
-![plot of chunk bikedensity-plot1](figure/bikedensity-plot1-1.svg) 
+![plot of chunk bikedensity-plot1](figure/bikedensity-plot1-1.png) 
 
 # Plot 2 - Vienna Map with Bike Parking Lots (Continous Density)  
 
@@ -145,7 +159,7 @@ ggplot(data=test1) +
   theme_bw() 
 ```
 
-![plot of chunk bikedensity-plot2](figure/bikedensity-plot2-1.svg) 
+![plot of chunk bikedensity-plot2](figure/bikedensity-plot2-1.png) 
 
 Comments/Pull Requests welcome!
 

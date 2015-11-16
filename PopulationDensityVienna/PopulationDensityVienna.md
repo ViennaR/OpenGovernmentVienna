@@ -8,6 +8,7 @@ The script executes the following steps:
 
 <!--more-->
 
+
 ```r
 library(rgdal) 
 library(rgeos) 
@@ -82,6 +83,6 @@ abline(h=c(5000,10000,15000,20000),lty=2)
 legend("topright",pch=c(15,15),col=c("darkred","lightblue"),c("high","low"),bg="white") 
 ```
 
-![plot of chunk popdensity](figure/popdensity-1.svg) 
+![plot of chunk popdensity](figure/popdensity-1.png) 
 
 Authors: Christian Brandstaetter with small additions by Mario Annau
